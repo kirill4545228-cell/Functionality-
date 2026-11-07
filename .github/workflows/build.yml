@@ -20,12 +20,20 @@ jobs:
         with:
           gradle-version: 8.1.1
 
+      - name: Unpack zip (if project is committed as an archive)
+        run: |
+          if [ -z "$(find . -name settings.gradle -not -path './.git/*' | head -n1)" ]; then
+            for z in ./*.zip; do
+              [ -e "$z" ] && unzip -q -o "$z" -d _unpacked
+            done
+          fi
+
       - name: Find project directory
         id: find
         run: |
           F=$(find . -name settings.gradle -not -path './.git/*' | head -n1)
           if [ -z "$F" ]; then
-            echo "settings.gradle not found in repo"; ls -R | head -50; exit 1
+            echo "settings.gradle not found"; ls -R | head -50; exit 1
           fi
           echo "dir=$(dirname "$F")" >> "$GITHUB_OUTPUT"
 
